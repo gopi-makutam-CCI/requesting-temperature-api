@@ -31,8 +31,7 @@ output application/json
 {
 	"City": payload.name,
 	"Minimum Temperature": (payload.main.temp_min as Number - 273.15) as String ++ " Celcius",
-	"Maximum Temperature": (payload.main.temp_max as Number - 273.15) as String ++ " Celcius",
-	"Weather Description": payload.weather.description[0]
+	"Maximum Temperature": (payload.main.temp_max as Number - 273.15) as String ++ " Celcius"
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
