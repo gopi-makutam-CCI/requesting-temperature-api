@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="1aa2ad59-56a9-42fa-a96d-a5fdc73c264f" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="57fb9b59-0e18-43b8-83fb-05587e703a71" />
+	<flow name="request-temperatureFlow" doc:id="7567e2af-ff3f-4611-828a-be4a5965554e" >
+		<http:listener doc:name="Listener" doc:id="f27af8d3-d0cc-4a06-bbb0-0536f6695e33" config-ref="HTTP_Listener_config" path="/reqTemp"/>
+		<logger level="INFO" doc:name="Start" doc:id="275c356c-bf06-49e1-8302-e8d66da23cc3" message='#[output application/json&#10;---&#10;{&#10;	"Flow has started": flow.name&#10;}]'/>
+		<http:request method="GET" doc:name="GET: /weather/city" doc:id="acb1a689-c5bf-4af2-a57b-3c1553295227" config-ref="HTTP_Request_configuration" url="https://api.openweathermap.org/data/2.5/weather">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"appid" : "10e640fe1bb7c09bfbe068c22468ef52",
+	"q" : attributes.queryParams.city
+}]]]></http:query-params>
+			<http:response-validator>
+				<http:success-status-code-validator values="200,404" />
+			</http:response-validator>
+		</http:request>
+		<ee:transform doc:name="Prepare Payload Kelvin to Celcius" doc:id="50fcb999-3321-47d9-a03c-11358cb03fd1">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"City": payload.name,
+	"Minimum Temperature": (payload.main.temp_min as Number - 273.15) as String ++ " Celcius",
+	"Maximum Temperature": (payload.main.temp_max as Number - 273.15) as String ++ " Celcius",
+	"Weather Description": payload.weather.description[0]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End" doc:id="d8f2885b-28ab-4900-a32f-490d39b06e2c" message='#[output application/json&#10;---&#10;{&#10;	"Flow has ended": flow.name&#10;}]'/>
+	</flow>
+</mule>
