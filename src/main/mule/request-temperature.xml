@@ -23,7 +23,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 				<http:success-status-code-validator values="200,404" />
 			</http:response-validator>
 		</http:request>
-		<ee:transform doc:name="Prepare Payload Kelvin to Celcius" doc:id="50fcb999-3321-47d9-a03c-11358cb03fd1">
+		<ee:transform doc:name="Preparing Payload Kelvin to Celcius" doc:id="50fcb999-3321-47d9-a03c-11358cb03fd1">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
